@@ -18,9 +18,9 @@
 #define SERIAL_SWAP                   OFF //    OFF, ON for swapped port or OFF for default port (ESP32/ESP8266 only.)        Infreq
 
 // ENCODER SUPPORT -----------------------------------------------------------------------------------------------------------------
-#define AXIS1_ENCODER              CW_CCW //    OFF, AB, CW_CCW, PULSE_DIR, AS37_H39B_B. RA/Azm Axis (A/MA) & (B/SLO.)        Option
+#define AXIS1_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, AS37_H39B_B. RA/Azm Axis (A/MA) & (B/SLO.)        Option
 #define AXIS1_ENCODER_OFFSET            0 //      0, +/- offset in counts (for absolute encoders.)                            Option
-#define AXIS1_ENCODER_SCALE            20 //      1, scales up encoder counts to achieve a higher artificial resolution       Option
+#define AXIS1_ENCODER_SCALE             1 //      1, scales up encoder counts to achieve a higher artificial resolution       Option
                                           //         to enable control/correction between the encoder counts.
 
 #define AXIS2_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, AS37_H39B_B. Dec/Alt Axis (A/MA) & (B/SLO.)       Option
