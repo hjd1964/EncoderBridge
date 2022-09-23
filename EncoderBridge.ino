@@ -32,6 +32,13 @@
 #endif
 
 void setup() {
+  #if AXIS1_ENCODER != OFF
+    encAxis1.init();
+  #endif
+  #if AXIS2_ENCODER != OFF
+    encAxis2.init();
+  #endif
+
   #if defined(ESP32)
     #if SERIAL_SWAP != ON
       SERIAL.begin(SERIAL_BAUD, SERIAL_8N1, SERIAL_RX, SERIAL_TX);
