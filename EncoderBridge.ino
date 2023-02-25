@@ -1,5 +1,11 @@
 // Encoder Serial Bridge
 
+// Firmware version ----------------------------------------------------------------------------------------------------------------
+#define FirmwareName                "EncoderBridge"
+#define FirmwareVersionMajor        1
+#define FirmwareVersionMinor        0      // minor version 00 to 99
+#define FirmwareVersionPatch        "a"    // for example major.minor patch: 10.03c
+
 #include "src/Common.h"
 
 #include "src/lib/encoder/as37h39bb/As37h39bb.h"
