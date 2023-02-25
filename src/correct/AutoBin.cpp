@@ -23,5 +23,7 @@ bool AutoBin::calibrate(int32_t count) {
 
     lastTime = thisTime;
     lastCount = count;
+    return false;
   }
+  return true;
 }
