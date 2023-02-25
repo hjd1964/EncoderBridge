@@ -32,6 +32,15 @@
 #endif
 
 void setup() {
+  #if DEBUG != OFF
+    SERIAL_DEBUG.begin(SERIAL_DEBUG_BAUD);
+  #endif
+
+  delay(2000);
+
+  VLF("");
+  VF("MSG: EncoderBridge, version "); V(FirmwareVersionMajor); V("."); V(FirmwareVersionMinor); VL(FirmwareVersionPatch);
+
   #if AXIS1_ENCODER != OFF
     encAxis1.init();
   #endif
@@ -39,37 +48,71 @@ void setup() {
     encAxis2.init();
   #endif
 
+  #ifdef AS37_SINGLE_TURN
+    #if AXIS1_ENCODER == AS37_H39B_B || AXIS2_ENCODER == AS37_H39B_B
+      VLF("--------------------------------------------------------------------------------");
+      VLF("MSG: AS37_SINGLE_TURN mode detected >>> with the mount in the home position <<<");
+      VLF("");
+    #endif
+    #if AXIS1_ENCODER == AS37_H39B_B
+      VF("MSG: AXIS1_ENCODER_OFFSET in counts should be set to "); VL(uint32_t(4194304 - encAxis1.read()));
+      encAxis1.setOrigin(AXIS1_ENCODER_OFFSET);
+    #endif
+    #if AXIS2_ENCODER == AS37_H39B_B
+      VF("MSG: AXIS2_ENCODER_OFFSET in counts should be set to "); VL(uint32_t(4194304 - encAxis2.read()));
+      encAxis2.setOrigin(AXIS2_ENCODER_OFFSET);
+    #endif
+    #if AXIS1_ENCODER == AS37_H39B_B
+      encAxis1.offset = -4194304;
+      VF("MSG: Axis1, counts at home should be 0 and currently are "); VL(encAxis1.read());
+    #endif
+    #if AXIS2_ENCODER == AS37_H39B_B
+      encAxis2.offset = -4194304;
+      VF("MSG: Axis2, counts at home should be 0 and currently are "); VL(encAxis2.read());
+    #endif
+    #if AXIS1_ENCODER == AS37_H39B_B || AXIS2_ENCODER == AS37_H39B_B
+      VLF("--------------------------------------------------------------------------------");
+    #endif
+#endif
+
   #if defined(ESP32)
     #if SERIAL_SWAP != ON
-      SERIAL.begin(SERIAL_BAUD, SERIAL_8N1, SERIAL_RX, SERIAL_TX);
+      SERIAL_ONSTEP.begin(SERIAL_BAUD, SERIAL_8N1, SERIAL_RX, SERIAL_TX);
     #else
-      SERIAL.begin(SERIAL_BAUD, SERIAL_8N1, SERIAL_SWAPPED_RX, SERIAL_SWAPPED_TX);
+      SERIAL_ONSTEP.begin(SERIAL_BAUD, SERIAL_8N1, SERIAL_SWAPPED_RX, SERIAL_SWAPPED_TX);
     #endif
   #else
-    SERIAL.begin(SERIAL_BAUD);
+    SERIAL_ONSTEP.begin(SERIAL_BAUD);
     #if defined(ESP8266) && SERIAL_SWAP == ON
-      SERIAL.swap();
+      SERIAL_ONSTEP.swap();
     #endif
   #endif
+
 }
 
 void loop() {
-  char c = Serial.read();
-  #if AXIS1_ENCODER != OFF
-    if (c == '1') {
-      Serial.print((encAxis1.read() + AXIS1_ENCODER_OFFSET)*AXIS1_ENCODER_SCALE);
-      if (encAxis1.error) Serial.println("E"); else
-      if (encAxis1.warn) Serial.println("W"); else Serial.println();
-    } else
-  #endif
-  #if AXIS2_ENCODER != OFF
-    if (c == '2') {
-      Serial.print((encAxis2.read() + AXIS2_ENCODER_OFFSET)*AXIS2_ENCODER_SCALE);
-      if (encAxis2.error) Serial.println("E"); else
-      if (encAxis2.warn) Serial.println("W"); else Serial.println();
-    } else
-  #endif
-  {
-    DL("ERR: Unknown axis")
+  if (SERIAL_ONSTEP.available()) {
+    char c = SERIAL_ONSTEP.read();
+    #if AXIS1_ENCODER != OFF
+      if (c == '1') {
+        int32_t count = encAxis1.read();
+        if (AXIS1_ENCODER_REVERSE == ON) count = -count;
+        SERIAL_ONSTEP.print(count*AXIS1_ENCODER_SCALE);
+        if (encAxis1.error) SERIAL_ONSTEP.println("E"); else
+        if (encAxis1.warn) SERIAL_ONSTEP.println("W"); else SERIAL_ONSTEP.println();
+      } else
+    #endif
+    #if AXIS2_ENCODER != OFF
+      if (c == '2') {
+        int32_t count = encAxis2.read();
+        if (AXIS2_ENCODER_REVERSE == ON) count = -count;
+        SERIAL_ONSTEP.print(count*AXIS2_ENCODER_SCALE);
+        if (encAxis2.error) SERIAL_ONSTEP.println("E"); else
+        if (encAxis2.warn) SERIAL_ONSTEP.println("W"); else SERIAL_ONSTEP.println();
+      } else
+    #endif
+    {
+      D("ERR: Unknown axis "); DL(c);
+    }
   }
 }
