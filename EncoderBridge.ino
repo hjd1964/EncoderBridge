@@ -49,37 +49,13 @@ void setup() {
 
   #if AXIS1_ENCODER != OFF
     encAxis1.init();
-  #endif
-  #if AXIS2_ENCODER != OFF
-    encAxis2.init();
+    encAxis1.setOrigin(AXIS1_ENCODER_ORIGIN);
   #endif
 
-  #ifdef AS37_SINGLE_TURN
-    #if AXIS1_ENCODER == AS37_H39B_B || AXIS2_ENCODER == AS37_H39B_B
-      VLF("--------------------------------------------------------------------------------");
-      VLF("MSG: AS37_SINGLE_TURN mode detected >>> with the mount in the home position <<<");
-      VLF("");
-    #endif
-    #if AXIS1_ENCODER == AS37_H39B_B
-      VF("MSG: AXIS1_ENCODER_OFFSET in counts should be set to "); VL(uint32_t(4194304 - encAxis1.read()));
-      encAxis1.setOrigin(AXIS1_ENCODER_OFFSET);
-    #endif
-    #if AXIS2_ENCODER == AS37_H39B_B
-      VF("MSG: AXIS2_ENCODER_OFFSET in counts should be set to "); VL(uint32_t(4194304 - encAxis2.read()));
-      encAxis2.setOrigin(AXIS2_ENCODER_OFFSET);
-    #endif
-    #if AXIS1_ENCODER == AS37_H39B_B
-      encAxis1.offset = -4194304;
-      VF("MSG: Axis1, counts at home should be 0 and currently are "); VL(encAxis1.read());
-    #endif
-    #if AXIS2_ENCODER == AS37_H39B_B
-      encAxis2.offset = -4194304;
-      VF("MSG: Axis2, counts at home should be 0 and currently are "); VL(encAxis2.read());
-    #endif
-    #if AXIS1_ENCODER == AS37_H39B_B || AXIS2_ENCODER == AS37_H39B_B
-      VLF("--------------------------------------------------------------------------------");
-    #endif
-#endif
+  #if AXIS2_ENCODER != OFF
+    encAxis2.init();
+    encAxis2.setOrigin(AXIS2_ENCODER_ORIGIN);
+  #endif
 
   #if defined(ESP32)
     #if SERIAL_SWAP != ON
