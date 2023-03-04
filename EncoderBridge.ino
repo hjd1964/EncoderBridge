@@ -69,7 +69,6 @@ void setup() {
       SERIAL_ONSTEP.swap();
     #endif
   #endif
-
 }
 
 void loop() {
