@@ -29,3 +29,6 @@
 
 //-----------------------------------------------------------------------------------------------------
 // Misc. includes and defines to support this processor's operation
+
+// stand-in for delayNanoseconds(), assumes 80MHz clock
+#define delayNanoseconds(ns) { unsigned int c = ESP.getCycleCount() + ns/12.5F; do {} while ((int)(ESP.getCycleCount() - c) < 0); }
