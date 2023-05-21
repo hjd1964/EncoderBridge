@@ -20,7 +20,7 @@
   #define E2END 1023
   #define NV_ENDURANCE NVE_LOW
   #include "../lib/nv/NV_ESP.h"
-  #define HAL_NV_INIT() { nv.init(E2END + 1, false, 5000, false); }
+  #define HAL_NV_INIT() { nv.init(E2END + 1, false, 1000, false); }
 #endif
 
 //--------------------------------------------------------------------------------------------------
