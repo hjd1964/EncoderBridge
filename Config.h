@@ -19,14 +19,12 @@
 
 // ENCODER SUPPORT -----------------------------------------------------------------------------------------------------------------
 #define AXIS1_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, AS37_H39B_B. RA/Azm Axis (A/MA) & (B/SLO.)        Option
-#define AXIS1_ENCODER_OFFSET            0 //      0, +/- offset in counts (for absolute encoders.)                            Option
-#define AXIS1_ENCODER_SCALE             1 //      1, scales up encoder counts to achieve a higher artificial resolution       Option
-                                          //         to enable control/correction between the encoder counts.
+#define AXIS1_ENCODER_REVERSE         OFF //    OFF, ON to reverse the count direction.                                       Option
+#define AXIS1_ENCODER_ORIGIN            0 //      0, +/- offset so encoder count is 0 at home (for absolute encoders)         Option
 
 #define AXIS2_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, AS37_H39B_B. Dec/Alt Axis (A/MA) & (B/SLO.)       Option
-#define AXIS2_ENCODER_OFFSET            0 //      0, +/- offset in counts (for absolute encoders.)                            Option
-#define AXIS2_ENCODER_SCALE             1 //      1, scales up encoder counts to achieve a higher artificial resolution       Option
-                                          //         to enable control/correction between the encoder counts.
+#define AXIS2_ENCODER_REVERSE         OFF //    OFF, ON to reverse the count direction.                                       Option
+#define AXIS2_ENCODER_ORIGIN            0 //      0, +/- offset so encoder count is 0 at home (for absolute encoders)         Option
 
 // THAT'S IT FOR USER CONFIGURATION!
 // -------------------------------------------------------------------------------

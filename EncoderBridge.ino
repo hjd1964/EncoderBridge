@@ -144,7 +144,7 @@ void loop() {
       if (c == '1') {
         int32_t count = encAxis1.read();
         if (AXIS1_ENCODER_REVERSE == ON) count = -count;
-        SERIAL_ONSTEP.print(count*AXIS1_ENCODER_SCALE);
+        SERIAL_ONSTEP.print(count);
         if (encAxis1.error) { SERIAL_ONSTEP.println("E"); encAxis1.error = false; } else
         if (encAxis1.warn) { SERIAL_ONSTEP.println("W"); encAxis1.warn = false; } else SERIAL_ONSTEP.println();
       }
@@ -154,7 +154,7 @@ void loop() {
       if (c == '2') {
         int32_t count = encAxis2.read();
         if (AXIS2_ENCODER_REVERSE == ON) count = -count;
-        SERIAL_ONSTEP.print(count*AXIS2_ENCODER_SCALE);
+        SERIAL_ONSTEP.print(count);
         if (encAxis2.error) { SERIAL_ONSTEP.println("E"); encAxis1.error = false; } else
         if (encAxis2.warn) { SERIAL_ONSTEP.println("W"); encAxis1.warn = false; } else SERIAL_ONSTEP.println();
       } else

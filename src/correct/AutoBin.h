@@ -18,6 +18,14 @@
 #define CORRECT_AVG_TICK  431.0F  // 431 milli-seconds per tick, on average, for a Gurley 8235S 200000 tick encoder
 #endif
 
+#ifndef AXIS1_ENCODER_SCALE
+#define AXIS1_ENCODER_SCALE 1
+#endif
+
+#ifndef AXIS2_ENCODER_SCALE
+#define AXIS2_ENCODER_SCALE 1
+#endif
+
 class AutoBin {
   public:
     int32_t apply(int32_t count);
