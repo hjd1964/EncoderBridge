@@ -103,13 +103,13 @@ void setup() {
   }
 
   #if AXIS1_ENCODER != OFF
-    VF("MSG: Absolute Encoder Axis1"); VF(", AXIS1_ENCODER_OFFSET "); V(uint32_t(settings.axis1.zero)); VLF(" read from NV/EEPROM");
+    VF("MSG: Encoder Axis1"); VF(", AXIS1_ENCODER_OFFSET "); V(uint32_t(settings.axis1.zero)); VLF(" read from NV/EEPROM");
     encAxis1.init();
     encAxis1.setOrigin(settings.axis1.zero);
   #endif
 
   #if AXIS2_ENCODER != OFF
-    VF("MSG: Absolute Encoder Axis2"); VF(", AXIS2_ENCODER_OFFSET "); V(uint32_t(settings.axis2.zero)); VLF(" read from NV/EEPROM");
+    VF("MSG: Encoder Axis2"); VF(", AXIS2_ENCODER_OFFSET "); V(uint32_t(settings.axis2.zero)); VLF(" read from NV/EEPROM");
     encAxis2.init();
     encAxis2.setOrigin(settings.axis2.zero);
   #endif
