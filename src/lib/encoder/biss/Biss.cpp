@@ -1,10 +1,10 @@
 // Broadcom AS37-H39B-B BISS-C encoders
 
-#include "As37h39bb.h"
+#include "Biss.h"
 
-#if AXIS1_ENCODER == AS37_H39B_B || AXIS2_ENCODER == AS37_H39B_B || AXIS3_ENCODER == AS37_H39B_B || \
-    AXIS4_ENCODER == AS37_H39B_B || AXIS5_ENCODER == AS37_H39B_B || AXIS6_ENCODER == AS37_H39B_B || \
-    AXIS7_ENCODER == AS37_H39B_B || AXIS8_ENCODER == AS37_H39B_B || AXIS9_ENCODER == AS37_H39B_B
+#if AXIS1_ENCODER == BISS || AXIS2_ENCODER == BISS || AXIS3_ENCODER == BISS || \
+    AXIS4_ENCODER == BISS || AXIS5_ENCODER == BISS || AXIS6_ENCODER == BISS || \
+    AXIS7_ENCODER == BISS || AXIS8_ENCODER == BISS || AXIS9_ENCODER == BISS
 
 // Designed according protocol description found in as38-H39e-b-an100.pdf and
 // Renishaw application note E201D02_02
@@ -41,9 +41,9 @@ uint8_t _crcBiSS(uint64_t data) {
   return (~crc & 0b111111);
 }
 
-// initialize AS37H39BB encoder
+// initialize BISS encoder
 // nvAddress holds settings for the 9 supported axes, 9*4 = 72 bytes; set nvAddress 0 to disable
-As37h39bb::As37h39bb(int16_t maPin, int16_t sloPin, int16_t axis) {
+Biss::Biss(int16_t maPin, int16_t sloPin, int16_t axis) {
   if (axis < 1 || axis > 9) return;
 
   clkPin = maPin;
@@ -52,8 +52,8 @@ As37h39bb::As37h39bb(int16_t maPin, int16_t sloPin, int16_t axis) {
 }
 
 // get device ready for use
-void As37h39bb::init() {
-  if (initialized) { VF("WRN: Encoder As37h39bb"); V(axis); VLF(" init(), already initialized!"); return; }
+void Biss::init() {
+  if (initialized) { VF("WRN: Encoder Biss"); V(axis); VLF(" init(), already initialized!"); return; }
 
   pinMode(clkPin, OUTPUT);
   digitalWriteF(clkPin, LOW);
@@ -63,26 +63,26 @@ void As37h39bb::init() {
 }
 
 // set encoder origin
-void As37h39bb::setOrigin(uint32_t count) {
-  if (!initialized) { VF("WRN: Encoder As37h39bb"); V(axis); VLF(" setOrigin(), not initialized!"); return; }
+void Biss::setOrigin(uint32_t count) {
+  if (!initialized) { VF("WRN: Encoder Biss"); V(axis); VLF(" setOrigin(), not initialized!"); return; }
 
   long temp = offset;
   offset = 0;
   origin = 0;
 
   VLF("----------------------------------------------------------------------------------------");
-  VF("MSG: Encoder As37h39bb"); V(axis); VLF(", >>> with the mount in the home position <<<");
-  VF("MSG: Encoder As37h39bb"); V(axis); VF(", if used AXIS"); V(axis); VF("_ENCODER_OFFSET in counts should be set to "); VL(uint32_t(-read()));
+  VF("MSG: Encoder Biss"); V(axis); VLF(", >>> with the mount in the home position <<<");
+  VF("MSG: Encoder Biss"); V(axis); VF(", if used AXIS"); V(axis); VF("_ENCODER_OFFSET in counts should be set to "); VL(uint32_t(-read()));
   origin = count;
-  VF("MSG: Encoder As37h39bb"); V(axis); VF(", counts at home should be 0 and currently are "); VL(read());
+  VF("MSG: Encoder Biss"); V(axis); VF(", counts at home should be 0 and currently are "); VL(read());
   VLF("----------------------------------------------------------------------------------------");
 
   offset = temp;
 }
 
 // read encoder count
-int32_t As37h39bb::read() {
-  if (!initialized) { VF("WRN: Encoder As37h39bb"); V(axis); VLF(" read(), not initialized!"); return 0; }
+int32_t Biss::read() {
+  if (!initialized) { VF("WRN: Encoder Biss"); V(axis); VLF(" read(), not initialized!"); return 0; }
 
   uint32_t temp;
   if (readEncLatest(temp)) {
@@ -91,8 +91,8 @@ int32_t As37h39bb::read() {
 }
 
 // write encoder count
-void As37h39bb::write(int32_t count) {
-  if (!initialized) { VF("WRN: Encoder As37h39bb"); V(axis); VLF(" write(), not initialized!"); return; }
+void Biss::write(int32_t count) {
+  if (!initialized) { VF("WRN: Encoder Biss"); V(axis); VLF(" write(), not initialized!"); return; }
 
   if (count != INT32_MAX) {
     uint32_t temp;
@@ -103,7 +103,7 @@ void As37h39bb::write(int32_t count) {
 }
 
 // read encoder count with (1 second) error recovery
-bool As37h39bb::readEncLatest(uint32_t &position) {
+bool Biss::readEncLatest(uint32_t &position) {
   uint32_t temp = position;
   bool success = readEnc(temp);
   if (success) {
@@ -119,7 +119,7 @@ bool As37h39bb::readEncLatest(uint32_t &position) {
 }
 
 // read encoder count
-IRAM_ATTR bool As37h39bb::readEnc(uint32_t &position) {
+IRAM_ATTR bool Biss::readEnc(uint32_t &position) {
   bool foundAck = false;
   bool foundStart = false;
   bool foundCds = false;
@@ -177,7 +177,16 @@ IRAM_ATTR bool As37h39bb::readEnc(uint32_t &position) {
 
       // if we have an Cds, read the data
       if (foundCds) {
-
+        #if AXIS1_BISS_ENCODER_VARIANT == TRI24 || AXIS2_BISS_ENCODER_VARIANT == TRI24
+        // the first 24 bits are the encoder absolute count
+        for (int i = 0; i < 24; i++) {
+          digitalWriteF(clkPin, LOW);
+          if (digitalReadF(sloPin) == HIGH) bitSet(position, 23 - i);
+          delayNanoseconds(rate);
+          digitalWriteF(clkPin, HIGH);
+          delayNanoseconds(rate);
+        }
+        #else
         // the first 16 bits are the multi-turn count
         for (int i = 0; i < 16; i++) {
           digitalWriteF(clkPin, LOW);
@@ -195,6 +204,7 @@ IRAM_ATTR bool As37h39bb::readEnc(uint32_t &position) {
           digitalWriteF(clkPin, HIGH);
           delayNanoseconds(rate);
         }
+        #endif
 
         // the Err bit
         digitalWriteF(clkPin, LOW);
@@ -233,6 +243,7 @@ IRAM_ATTR bool As37h39bb::readEnc(uint32_t &position) {
     interrupts();
   #endif
 
+  #if AXIS1_BISS_ENCODER_VARIANT == AS37_H39B_B || AXIS2_BISS_ENCODER_VARIANT == AS37_H39B_B
   // trap errors
   int16_t errors = 0;
   UNUSED(encWrn);
@@ -243,36 +254,54 @@ IRAM_ATTR bool As37h39bb::readEnc(uint32_t &position) {
 
   if (_crcBiSS(encData) != as37Crc) {
     bad++;
-    VF("WRN: Encoder As37h39bb"); V(axis); VF(", Crc invalid (overall "); V(((float)bad/good)*100.0F); V('%'); VLF(")"); errors++;
+    VF("WRN: Encoder Biss"); V(axis); VF(", Crc invalid (overall "); V(((float)bad/good)*100.0F); V('%'); VLF(")"); errors++;
   } else {
     good++;
-    if (!foundAck) { VF("WRN: Encoder As37h39bb"); V(axis); VLF(", Ack bit invalid"); errors++; } else
-    if (!foundStart) { VF("WRN: Encoder As37h39bb"); V(axis); VLF(", Start bit invalid"); errors++; } else
-    if (!foundCds) { VF("WRN: Encoder As37h39bb"); V(axis); VLF(", Cds bit invalid"); errors++; } else
-    if (encErr) { VF("WRN: Encoder As37h39bb"); V(axis); VLF(", Error bit set"); errors++; } else errors = 0;
+    if (!foundAck) { VF("WRN: Encoder Biss"); V(axis); VLF(", Ack bit invalid"); errors++; } else
+    if (!foundStart) { VF("WRN: Encoder Biss"); V(axis); VLF(", Start bit invalid"); errors++; } else
+    if (!foundCds) { VF("WRN: Encoder Biss"); V(axis); VLF(", Cds bit invalid"); errors++; } else
+    if (encErr) { VF("WRN: Encoder Biss"); V(axis); VLF(", Error bit set"); errors++; } else errors = 0;
   }
 
   if (errors > 0) {
     if (errors <= 2) warn = true; else error = true;
     return false;
   }
+  #endif
 
   #ifndef AS37_SINGLE_TURN
+    #if AXIS1_BISS_ENCODER_VARIANT == TRI24 || AXIS2_BISS_ENCODER_VARIANT == TRI24
+    position = position | ((encTurns & 0b0011111111) << 24);
+    #else
     // combine absolute and 9 low order bits of multi-turn count for a 32 bit count
     position = position | ((encTurns & 0b0111111111) << 23);
+    #endif
   #else
     // extend negative to 32 bits
+    #if AXIS1_BISS_ENCODER_VARIANT == TRI24 || AXIS2_BISS_ENCODER_VARIANT == TRI24
+    if (bitRead(position, 24)) { position |= 0b11111111000000000000000000000000; }
+    #else
     if (bitRead(position, 23)) { position |= 0b11111111100000000000000000000000; }
+    #endif
   #endif
 
   position += origin;
 
   #ifdef AS37_SINGLE_TURN
+    #if AXIS1_BISS_ENCODER_VARIANT == TRI24 || AXIS2_BISS_ENCODER_VARIANT == TRI24
+    if ((int32_t)position > 16777216) position -= 16777216;
+    if ((int32_t)position < 0) position += 16777216;
+    #else
     if ((int32_t)position > 8388608) position -= 8388608;
     if ((int32_t)position < 0) position += 8388608;
+    #endif
   #endif
 
+  #if AXIS1_BISS_ENCODER_VARIANT == TRI24 || AXIS2_BISS_ENCODER_VARIANT == TRI24
+  position -= 8388608;
+  #else
   position -= 4194304;
+  #endif
 
   return true;
 }

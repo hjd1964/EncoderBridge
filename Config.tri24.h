@@ -18,14 +18,20 @@
 #define SERIAL_SWAP                   OFF //    OFF, ON for swapped port or OFF for default port (ESP32/ESP8266 only.)        Infreq
 
 // ENCODER SUPPORT -----------------------------------------------------------------------------------------------------------------
-#define AXIS1_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, BISS. RA/Azm Axis (A/MA) & (B/SLO.)               Option
+#define AXIS1_ENCODER                BISS //    OFF, AB, CW_CCW, PULSE_DIR, BISS. RA/Azm Axis (A/MA) & (B/SLO.)               Option
+#define AXIS1_BISS_ENCODER_VARIANT  TRI24 //    AS37_H39B_B or TRI24 for trident 24 bit custom encoder                        Option
+#define AXIS1_ENCODER_TICKS_DEG 46603.378 // 22.222, n, (ticks/degree.) Encoder ticks per degree.                             Adjust
 #define AXIS1_ENCODER_REVERSE         OFF //    OFF, ON to reverse the count direction.                                       Option
 #define AXIS1_ENCODER_ORIGIN            0 //      0, +/- offset so encoder count is 0 at home (for absolute encoders)         Option
 
-#define AXIS2_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, BISS. Dec/Alt Axis (A/MA) & (B/SLO.)              Option
+#define AXIS2_ENCODER                BISS //    OFF, AB, CW_CCW, PULSE_DIR, BISS. Dec/Alt Axis (A/MA) & (B/SLO.)              Option
+#define AXIS2_BISS_ENCODER_VARIANT  TRI24 //    AS37_H39B_B or TRI24 for trident 24 bit custom encoder                        Option
+#define AXIS1_ENCODER_TICKS_DEG 46603.378 // 22.222, n, (ticks/degree.) Encoder ticks per degree.                             Adjust
 #define AXIS2_ENCODER_REVERSE         OFF //    OFF, ON to reverse the count direction.                                       Option
 #define AXIS2_ENCODER_ORIGIN            0 //      0, +/- offset so encoder count is 0 at home (for absolute encoders)         Option
 
+#define AS37_SINGLE_TURN
+#define AS37_CLOCK_RATE_KHZ          4000 // error rate is: ~2.0% at 500 KHz, ~0.5% @ 2000 KHz, ~0.01% at 4000KHz
 // THAT'S IT FOR USER CONFIGURATION!
 // -------------------------------------------------------------------------------
 

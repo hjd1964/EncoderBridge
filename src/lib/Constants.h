@@ -81,7 +81,7 @@
 #define CW_CCW                      3      // clockwise/counter-clockwise encoder
 #define PULSE_DIR                   4      // pulse/direction encoder
 #define PULSE_ONLY                  5      // pulse only encoder
-#define AS37_H39B_B                 6      // Broadcom AS37-H39B-B BISS-C interface encoder
+#define BISS                        6      // Broadcom AS37-H39B-B BISS-C interface encoder
 #define SERIAL_BRIDGE               7      // serial bridge to encoders
 #define ENC_LAST                    7
 
