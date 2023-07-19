@@ -4,7 +4,7 @@
 #define FirmwareName                "EncoderBridge"
 #define FirmwareVersionMajor        1
 #define FirmwareVersionMinor        1      // minor version 00 to 99
-#define FirmwareVersionPatch        "a"    // for example major.minor patch: 10.03c
+#define FirmwareVersionPatch        "b"    // for example major.minor patch: 10.03c
 
 #include "src/Common.h"
 NVS nv;
