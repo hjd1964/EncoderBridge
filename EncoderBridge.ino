@@ -9,7 +9,8 @@
 #include "src/Common.h"
 NVS nv;
 
-#include "src/lib/encoder/as37h39bb/As37h39bb.h"
+#include "src/lib/encoder/bissc/As37h39bb.h"
+#include "src/lib/encoder/bissc/Jtw24.h"
 #include "src/lib/encoder/cwCcw/CwCcw.h"
 #include "src/lib/encoder/pulseDir/PulseDir.h"
 #include "src/lib/encoder/quadrature/Quadrature.h"
@@ -22,6 +23,8 @@ NVS nv;
   PulseDir encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
 #elif AXIS1_ENCODER == AS37_H39B_B
   As37h39bb encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+#elif AXIS1_ENCODER == JTW_24BIT
+  Jtw24 encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
 #elif AXIS1_ENCODER == SERIAL_BRIDGE
   SerialBridge encAxis1(1);
 #endif
@@ -34,6 +37,8 @@ NVS nv;
   PulseDir encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
 #elif AXIS2_ENCODER == AS37_H39B_B
   As37h39bb encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+#elif AXIS2_ENCODER == JTW_24BIT
+  Jtw24 encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
 #elif AXIS2_ENCODER == SERIAL_BRIDGE
   SerialBridge encAxis2(2);
 #endif
