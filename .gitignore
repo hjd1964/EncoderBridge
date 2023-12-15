@@ -4,3 +4,4 @@ debug_custom.json
 esp32.svd
 debug.svd
 .vscode/c_cpp_properties.json
+.vscode/arduino.json
