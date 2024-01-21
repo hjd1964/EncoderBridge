@@ -13,9 +13,9 @@
 // <-Req'd = always must set, <-Often = usually must set, Option = optional, Adjust = adjust as req'd, Infreq = infrequently changed
 
 // SERIAL PORTS --------------------------------------------------------------------------------------------------------------------
-#define SERIAL                     Serial // Serial, specify serial interface for encoder output.                             Option
 #define SERIAL_BAUD                460800 // 460800, Or use 460800,230400,115200,etc.                                         Option
 #define SERIAL_SWAP                   OFF //    OFF, ON for swapped port or OFF for default port (ESP32/ESP8266 only.)        Infreq
+#define SERIAL_ONSTEP              Serial // Serial, specify serial interface for encoder output.                             Option
 
 // ENCODER SUPPORT -----------------------------------------------------------------------------------------------------------------
 #define AXIS1_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, AS37_H39B_B. RA/Azm Axis (A/MA) & (B/SLO.)        Option
