@@ -9,14 +9,18 @@
 #include "src/Common.h"
 NVS nv;
 
-#include "src/lib/encoder/bissc/As37h39bb.h"
-#include "src/lib/encoder/bissc/Jtw24.h"
+#include "src/lib/encoder/quadrature/Quadrature.h"
+#include "src/lib/encoder/quadratureEsp32/QuadratureEsp32.h"
 #include "src/lib/encoder/cwCcw/CwCcw.h"
 #include "src/lib/encoder/pulseDir/PulseDir.h"
-#include "src/lib/encoder/quadrature/Quadrature.h"
+#include "src/lib/encoder/bissc/As37h39bb.h"
+#include "src/lib/encoder/bissc/Jtw24.h"
+#include "src/lib/encoder/bissc/Jtw26.h"
 
 #if AXIS1_ENCODER == AB
   Quadrature encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+#elif AXIS1_ENCODER == AB_ESP32
+  QuadratureEsp32 encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
 #elif AXIS1_ENCODER == CW_CCW
   CwCcw encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
 #elif AXIS1_ENCODER == PULSE_DIR
@@ -25,12 +29,14 @@ NVS nv;
   As37h39bb encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
 #elif AXIS1_ENCODER == JTW_24BIT
   Jtw24 encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
-#elif AXIS1_ENCODER == SERIAL_BRIDGE
-  SerialBridge encAxis1(1);
+#elif AXIS1_ENCODER == JTW_26BIT
+  Jtw26 encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
 #endif
 
 #if AXIS2_ENCODER == AB
   Quadrature encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+#elif AXIS2_ENCODER == AB_ESP32
+  QuadratureEsp32 encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
 #elif AXIS2_ENCODER == CW_CCW
   CwCcw encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
 #elif AXIS2_ENCODER == PULSE_DIR
@@ -39,8 +45,8 @@ NVS nv;
   As37h39bb encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
 #elif AXIS2_ENCODER == JTW_24BIT
   Jtw24 encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
-#elif AXIS2_ENCODER == SERIAL_BRIDGE
-  SerialBridge encAxis2(2);
+#elif AXIS2_ENCODER == JTW_26BIT
+  Jtw26 encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
 #endif
 
 #define EncoderSettingsSize 72

@@ -18,11 +18,11 @@
 #define SERIAL_ONSTEP              Serial // Serial, specify serial interface for encoder output.                             Option
 
 // ENCODER SUPPORT -----------------------------------------------------------------------------------------------------------------
-#define AXIS1_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, AS37_H39B_B. RA/Azm Axis (A/MA) & (B/SLO.)        Option
+#define AXIS1_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, etc.         RA/Azm Axis (A/MA) & (B/SLO.)        Option
 #define AXIS1_ENCODER_REVERSE         OFF //    OFF, ON to reverse the count direction.                                       Option
 #define AXIS1_ENCODER_ORIGIN            0 //      0, +/- offset so encoder count is 0 at home (for absolute encoders)         Option
 
-#define AXIS2_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, AS37_H39B_B. Dec/Alt Axis (A/MA) & (B/SLO.)       Option
+#define AXIS2_ENCODER                 OFF //    OFF, AB, CW_CCW, PULSE_DIR, etc.         Dec/Alt Axis (A/MA) & (B/SLO.)       Option
 #define AXIS2_ENCODER_REVERSE         OFF //    OFF, ON to reverse the count direction.                                       Option
 #define AXIS2_ENCODER_ORIGIN            0 //      0, +/- offset so encoder count is 0 at home (for absolute encoders)         Option
 
