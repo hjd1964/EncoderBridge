@@ -8,6 +8,10 @@
 #include "../../../tasks/OnTask.h"
 #include "../Motor.h"
 
+#ifdef ABSOLUTE_ENCODER_CALIBRATION
+  extern volatile long _calibrateStepPosition;
+#endif
+
 ServoMotor *servoMotorInstance[9];
 IRAM_ATTR void moveServoMotorAxis1() { servoMotorInstance[0]->move(); }
 IRAM_ATTR void moveServoMotorAxis2() { servoMotorInstance[1]->move(); }
@@ -26,6 +30,9 @@ ServoMotor::ServoMotor(uint8_t axisNumber, ServoDriver *Driver, Filter *filter, 
   driverType = SERVO;
   strcpy(axisPrefix, "MSG: Servo_, ");
   axisPrefix[10] = '0' + axisNumber;
+  strcpy(axisPrefixWarn, "WRN: Servo_, ");
+  axisPrefixWarn[10] = '0' + axisNumber;
+
   this->axisNumber = axisNumber;
   this->filter = filter;
   this->encoder = encoder;
@@ -68,6 +75,10 @@ bool ServoMotor::init() {
 
   driver->init();
   enable(false);
+
+  #ifdef ABSOLUTE_ENCODER_CALIBRATION
+    calibrationRead("/encoder.dat");
+  #endif
 
   trackingFrequency = (AXIS1_STEPS_PER_DEGREE/240.0F)*SIDEREAL_RATIO_F;
 
@@ -172,6 +183,14 @@ long ServoMotor::getTargetDistanceSteps() {
 // set frequency (+/-) in steps per second negative frequencies move reverse in direction (0 stops motion)
 void ServoMotor::setFrequencySteps(float frequency) {
 
+  #ifdef ABSOLUTE_ENCODER_CALIBRATION
+    // automatically write calibration data if tracking is stopped
+    if (calibrateMode == CM_RECORDING && frequency == 0.0F) {
+      calibrate(0);
+      enable(false);
+    }
+  #endif
+
   // negative frequency, convert to positive and reverse the direction
   int dir = 0;
   if (frequency > 0.0F) dir = 1; else if (frequency < 0.0F) { frequency = -frequency; dir = -1; }
@@ -266,6 +285,33 @@ void ServoMotor::poll() {
   float velocity = velocityEstimate + control->out;
   if (!enabled) velocity = 0.0F;
 
+  #ifdef ABSOLUTE_ENCODER_CALIBRATION
+    if (axisNumber == 1) {
+
+      if (velocityOverride != 0.0F) velocity = velocityOverride;
+      if (calibrateMode == CM_RECORDING) {
+        motorCounts = _calibrateStepPosition/((AXIS1_SERVO_VELOCITY_TRACKING)/(AXIS1_STEPS_PER_DEGREE/240.0));
+        calibrateRecord(velocity, motorCounts, encoderCounts);
+      }
+/*
+      static uint32_t t_zero = 0;
+      static int last_t_now = 0;
+      static float lastVelocityOverride = 0.0F;
+      if (lastVelocityOverride != velocityOverride) t_zero = millis();
+      lastVelocityOverride = velocityOverride;
+      int t_now = (millis() - t_zero)/1000;
+      if (t_now != last_t_now) {
+        char s[800];
+        sprintf(s, "m=%08ld, e=%08ld, c=%08ld", motorSteps, encoderCounts, motorCounts);
+
+//        sprintf(s, "tNow=%4.0f, delta=%+5.1f\", count=%+08d, index=%06d, correction=%+04d", (float)t_now, (motorCounts - encoderCounts)/(AXIS1_STEPS_PER_DEGREE/3600.0F),encoder->count, encoderIndex(), (int)encoderCorrection);
+        DL(s);
+        last_t_now = t_now;
+      }
+*/
+    }
+  #endif
+
   // for virtual encoders set the velocity and direction
   if (encoder->isVirtual) {
     encoder->setVelocity(abs(velocity));
@@ -290,7 +336,11 @@ void ServoMotor::poll() {
   }
 
   // if the driver has shutdown itself we should also shutdown
-  if (driver->getStatus().fault && enabled) enable(false);
+  if (driver->getStatus().fault && enabled) {
+    D(axisPrefixWarn);
+    DL("fault detected, shutting down axis!");
+    enable(false);
+  }
 
   if (velocityPercent < -33) wasBelow33 = true;
   if (velocityPercent > 33) wasAbove33 = true;
@@ -300,7 +350,7 @@ void ServoMotor::poll() {
     #ifndef SERVO_SAFETY_DISABLE
       // if above 33% power and we're not moving something is seriously wrong, so shut it down
       if (labs(encoderCounts - lastEncoderCounts) < 10 && abs(velocityPercent) >= 33) {
-        D(axisPrefix);
+        D(axisPrefixWarn);
         D("stall detected!"); D(" control->in = "); D(control->in); D(", control->set = "); D(control->set);
         D(", control->out = "); D(control->out); D(", velocity % = "); DL(velocityPercent);
         enable(false);
@@ -308,7 +358,7 @@ void ServoMotor::poll() {
 
       // if above 90% power and we're moving away from the target something is seriously wrong, so shut it down
       if (labs(encoderCounts - lastEncoderCounts) > lastTargetDistance && abs(velocityPercent) >= 90) {
-        D(axisPrefix);
+        D(axisPrefixWarn);
         DL("runaway detected, > 90% power while moving away from the target!");
         enable(false);
       }
@@ -316,7 +366,7 @@ void ServoMotor::poll() {
 
       // if we were below -33% and above 33% power in a one second period something is seriously wrong, so shut it down
       if (wasBelow33 && wasAbove33) {
-        D(axisPrefix);
+        D(axisPrefixWarn);
         DL("oscillation detected, below -33% and above 33% power in a 2 second period!");
         enable(false);
       }
@@ -394,6 +444,15 @@ IRAM_ATTR void ServoMotor::move() {
 int32_t ServoMotor::encoderRead() {
   int32_t encoderCounts = encoder->read();
 
+  #ifdef ABSOLUTE_ENCODER_CALIBRATION
+    if (axisNumber == 1) {
+      if (calibrateMode != CM_RECORDING) {
+        if (encoderCorrectionBuffer != NULL) encoderCorrection = ecbn(encoderCorrectionBuffer[encoderIndex()]); else encoderCorrection = 0;
+        encoderCounts += encoderCorrection;
+      }
+    }
+  #endif
+
   if (encoderReverse) encoderCounts = -encoderCounts;
   return encoderCounts;
 }
@@ -408,5 +467,14 @@ uint32_t ServoMotor::encoderZero() {
 
   return zero;
 }
+
+#ifdef ABSOLUTE_ENCODER_CALIBRATION
+  int32_t ServoMotor::encoderIndex() {
+    int32_t index = (encoder->count/ENCODER_ECM_BUFFER_RESOLUTION + ENCODER_ECM_BUFFER_SIZE/2);
+    if (index < 0) index = 0;
+    if (index > ENCODER_ECM_BUFFER_SIZE - 1) index = ENCODER_ECM_BUFFER_SIZE - 1;
+    return index;
+  }
+#endif
 
 #endif

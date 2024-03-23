@@ -8,8 +8,8 @@
 
 #include "../../../tasks/OnTask.h"
 
-#ifndef AXIS1_SERVO_TRACKING_VELOCITY
-#define AXIS1_SERVO_TRACKING_VELOCITY 0
+#ifndef AXIS1_SERVO_VELOCITY_TRACKING
+#define AXIS1_SERVO_VELOCITY_TRACKING 0
 #endif
 
 volatile long _calibrateStepPosition = 0;
@@ -51,7 +51,7 @@ void ServoMotor::calibrate(float value)
     V(axisPrefix);
     VLF("started recording encoder delta");
     calibrateMode = CM_RECORDING;
-    velocityOverride = -(AXIS1_SERVO_TRACKING_VELOCITY) * SIDEREAL_RATIO;
+    velocityOverride = -(AXIS1_SERVO_VELOCITY_TRACKING) * SIDEREAL_RATIO;
     startCount = encoder->count;
 
     // set stepper driver to step/dir mode
@@ -62,7 +62,7 @@ void ServoMotor::calibrate(float value)
     _calibrateStepPosition = motorSteps;
     interrupts();
     // m == -0586990, c == -0644885, f == 1.098
-     _calibrateStepPosition *= ((AXIS1_SERVO_TRACKING_VELOCITY)/(AXIS1_STEPS_PER_DEGREE/240.0));
+     _calibrateStepPosition *= ((AXIS1_SERVO_VELOCITY_TRACKING)/(AXIS1_STEPS_PER_DEGREE/240.0));
     _calibrateStepPin = AXIS1_STEP_PIN;
     if (velocityOverride >= 0) {
       _calStep = -1;
@@ -95,7 +95,7 @@ void ServoMotor::calibrate(float value)
 
   case 3: // [F]ixed rate tracking (with encoder correction)
     calibrateMode = CM_FIXED_RATE;
-    velocityOverride = -(AXIS1_SERVO_TRACKING_VELOCITY) * SIDEREAL_RATIO;
+    velocityOverride = -(AXIS1_SERVO_VELOCITY_TRACKING) * SIDEREAL_RATIO;
 
     // set stepper driver to step/dir mode
     driver->alternateMode(true);
