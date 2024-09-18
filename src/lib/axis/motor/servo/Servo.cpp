@@ -184,10 +184,13 @@ long ServoMotor::getTargetDistanceSteps() {
 void ServoMotor::setFrequencySteps(float frequency) {
 
   #ifdef ABSOLUTE_ENCODER_CALIBRATION
-    // automatically write calibration data if tracking is stopped
-    if (calibrateMode == CM_RECORDING && frequency == 0.0F) {
-      calibrate(0);
-      enable(false);
+    if (axisNumber == 1 && calibrateMode == CM_RECORDING) {
+      // automatically write calibration data if tracking is stopped
+      if (abs(frequency) < 1.0F) {
+        calibrate(0);
+      } else {
+        frequency = trackingFrequency * AXIS1_SERVO_VELOCITY_CALIBRATION;
+      }
     }
   #endif
 
@@ -223,7 +226,11 @@ void ServoMotor::setFrequencySteps(float frequency) {
     }
 
     currentFrequency = frequency;
-    velocityEstimate = -driver->getVelocityEstimate(currentFrequency*dir);
+    if (encoderReverse) {
+      velocityEstimate = driver->getVelocityEstimate(currentFrequency*dir);
+    } else {
+      velocityEstimate = -driver->getVelocityEstimate(currentFrequency*dir);
+    }
 
     // change the motor rate/direction
     noInterrupts();
@@ -287,28 +294,11 @@ void ServoMotor::poll() {
 
   #ifdef ABSOLUTE_ENCODER_CALIBRATION
     if (axisNumber == 1) {
-
       if (velocityOverride != 0.0F) velocity = velocityOverride;
       if (calibrateMode == CM_RECORDING) {
         motorCounts = _calibrateStepPosition/((AXIS1_SERVO_VELOCITY_TRACKING)/(AXIS1_STEPS_PER_DEGREE/240.0));
         calibrateRecord(velocity, motorCounts, encoderCounts);
       }
-/*
-      static uint32_t t_zero = 0;
-      static int last_t_now = 0;
-      static float lastVelocityOverride = 0.0F;
-      if (lastVelocityOverride != velocityOverride) t_zero = millis();
-      lastVelocityOverride = velocityOverride;
-      int t_now = (millis() - t_zero)/1000;
-      if (t_now != last_t_now) {
-        char s[800];
-        sprintf(s, "m=%08ld, e=%08ld, c=%08ld", motorSteps, encoderCounts, motorCounts);
-
-//        sprintf(s, "tNow=%4.0f, delta=%+5.1f\", count=%+08d, index=%06d, correction=%+04d", (float)t_now, (motorCounts - encoderCounts)/(AXIS1_STEPS_PER_DEGREE/3600.0F),encoder->count, encoderIndex(), (int)encoderCorrection);
-        DL(s);
-        last_t_now = t_now;
-      }
-*/
     }
   #endif
 
@@ -390,6 +380,7 @@ void ServoMotor::poll() {
 
 //      sprintf(s, "Servo%d_Delta: %6ld, Motor %6ld, Encoder %6ld, Servo%d_Power: %6.3f%%\r\n", (int)axisNumber, (motorCounts - encoderCounts), motorCounts, (long)encoderCounts, (int)axisNumber, velocityPercent);
 //      sprintf(s, "Servo%d: Motor %6ld, Encoder %6ld\r\n", (int)axisNumber, motorCounts, (long)encoderCounts);
+//      sprintf(s, "Servo%d: Delta %0.2f\r\n", (int)axisNumber, (motorCounts - (long)encoderCounts)/12.9425);
       sprintf(s, "Servo%d: DeltaASf: %0.2f, DeltaAS: %0.2f, Servo%d_Power: %6.3f%%\r\n", (int)axisNumber, (motorCounts - encoderCounts)/spas, (motorCounts - unfilteredEncoderCounts)/spas, (int)axisNumber, velocityPercent);
 
         D(s);
@@ -447,7 +438,23 @@ int32_t ServoMotor::encoderRead() {
   #ifdef ABSOLUTE_ENCODER_CALIBRATION
     if (axisNumber == 1) {
       if (calibrateMode != CM_RECORDING) {
-        if (encoderCorrectionBuffer != NULL) encoderCorrection = ecbn(encoderCorrectionBuffer[encoderIndex()]); else encoderCorrection = 0;
+        if (encoderCorrectionBuffer != NULL) {
+          double index = ((double)encoder->count/ENCODER_ECM_BUFFER_RESOLUTION + ENCODER_ECM_BUFFER_SIZE/2.0);
+          double frac = index - floor(index);
+          int16_t ecb = ecbn(encoderCorrectionBuffer[encoderIndex(-1)]);
+          int16_t eca = ecbn(encoderCorrectionBuffer[encoderIndex(1)]);
+          encoderCorrection = ecbn(encoderCorrectionBuffer[encoderIndex()]);
+
+          if (frac < 0) {
+            encoderCorrection = round(encoderCorrection * (frac + 1.0)); // frac at -1 = 0 and at 0 = 1
+            encoderCorrection += round(ecb * abs(frac));                 // frac at -1 = 1 and at 0 = 0 
+          } else {
+            encoderCorrection = round(encoderCorrection * (1.0 - frac)); // frac at 1 = 0 and at 0 = 1
+            encoderCorrection += round(eca * abs(frac));                 // frac at 1 = 1 and at 0 = 0 
+          }
+
+        } else encoderCorrection = 0;
+//        DL1(encoderCorrection);
         encoderCounts += encoderCorrection;
       }
     }
@@ -469,8 +476,9 @@ uint32_t ServoMotor::encoderZero() {
 }
 
 #ifdef ABSOLUTE_ENCODER_CALIBRATION
-  int32_t ServoMotor::encoderIndex() {
+  int32_t ServoMotor::encoderIndex(int32_t offset) {
     int32_t index = (encoder->count/ENCODER_ECM_BUFFER_RESOLUTION + ENCODER_ECM_BUFFER_SIZE/2);
+    index += offset;
     if (index < 0) index = 0;
     if (index > ENCODER_ECM_BUFFER_SIZE - 1) index = ENCODER_ECM_BUFFER_SIZE - 1;
     return index;

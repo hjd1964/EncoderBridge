@@ -45,6 +45,22 @@
     #define ENCODER_ECM_BUFFER_RESOLUTION 512
   #endif
 
+  #ifndef ENCODER_ECM_HIGH_PASS_ORDER
+    #define ENCODER_ECM_HIGH_PASS_ORDER 2
+  #endif
+
+  #ifndef ENCODER_ECM_HIGH_PASS_POINTS
+    #define ENCODER_ECM_HIGH_PASS_POINTS 10
+  #endif
+
+  #ifndef ENCODER_ECM_LOW_PASS_ORDER
+    #define ENCODER_ECM_LOW_PASS_ORDER 5
+  #endif
+
+  #ifndef ENCODER_ECM_LOW_PASS_POINTS
+    #define ENCODER_ECM_LOW_PASS_POINTS 10
+  #endif
+
   #define ECB_NO_DATA -32768
 
   enum CalibrateMode {CM_NONE, CM_RECORDING, CM_FIXED_RATE};
@@ -143,8 +159,9 @@ class ServoMotor : public Motor {
     bool calibrationAveragingWrite();
     void calibrationClear();
     void calibrationErase();
-    bool calibrationLinearRegression();
+    bool calibrationHighPass();
     bool calibrationLowPass();
+    bool calibrationLinearRegression();
     void calibrationPrint();
     inline int16_t ecbn(int16_t value) { if (value == ECB_NO_DATA) return 0; else return value; };
 
@@ -156,7 +173,7 @@ class ServoMotor : public Motor {
 
     CalibrateMode calibrateMode = CM_NONE;
 
-    int32_t encoderIndex();
+    int32_t encoderIndex(int32_t offset = 0);
   #endif
 
     Filter *filter;
