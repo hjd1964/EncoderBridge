@@ -11,11 +11,8 @@
   #define HAL_WIRE_CLOCK 100000
 #endif
 
-// Default serial port where OnStep is attached ------------------------------------------------------
-#include <Arduino.h>
-#define SERIAL_ONSTEP Serial
-
 // Non-volatile storage ------------------------------------------------------------------------------
+#include <Arduino.h>
 #if NV_DRIVER == NV_DEFAULT
   #define E2END 1023
   #define NV_ENDURANCE NVE_LOW

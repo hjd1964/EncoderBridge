@@ -14,9 +14,6 @@
   #define HAL_WIRE_CLOCK 100000
 #endif
 
-// Default serial port where OnStep is attached ------------------------------------------------------
-#define SERIAL_ONSTEP Serial1
-
 // Non-volatile storage ------------------------------------------------------------------------------
 #if NV_DRIVER == NV_DEFAULT
   // Library FlashStorage defaults to 1024 bytes https://github.com/cmaglie/FlashStorage

@@ -13,8 +13,8 @@
 // <-Req'd = always must set, <-Often = usually must set, Option = optional, Adjust = adjust as req'd, Infreq = infrequently changed
 
 // SERIAL PORTS --------------------------------------------------------------------------------------------------------------------
-#define SERIAL_BAUD                460800 // 460800, Or use 460800,230400,115200,etc.                                         Option
 #define SERIAL_ONSTEP              Serial // Serial, specify serial interface for encoder output.                             Option
+#define SERIAL_BAUD                460800 // 460800, Or use 921600,460800,230400,115200,etc.                                  Option
 #define SERIAL_SWAP                   OFF //    OFF, ON for swapped port or OFF for default port (ESP32/ESP8266 only.)        Option
 
 // ENCODER SUPPORT -----------------------------------------------------------------------------------------------------------------

@@ -16,9 +16,6 @@
   #define HAL_NV_INIT() 
 #endif
 
-// Default serial port where OnStep is attached ------------------------------------------------------
-#define SERIAL_ONSTEP Serial1
-
 //----------------------------------------------------------------------------------------------------
 // General purpose initialize for HAL
 #define HAL_INIT() { analogReadResolution(10); nv.init(E2END + 1, true, 0, false); }

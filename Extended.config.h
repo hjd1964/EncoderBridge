@@ -15,4 +15,4 @@
 #define DEBUG                         OFF //         OFF, Use ON for background error messages only, use VERBOSE for all      Infreq
                                           //              error and status messages
 #define SERIAL_DEBUG               Serial //      Serial, Or use any h/w serial port. Serial1 or Serial2, etc. as supported.  Option
-#define SERIAL_DEBUG_BAUD          115200 //        9600, n. Where n=9600,19200,57600,115200 (common baud rates.)             Option
+#define SERIAL_DEBUG_BAUD          230400 //        9600, n. Where n=9600,19200,57600,115200 (common baud rates.)             Option
