@@ -7,15 +7,9 @@
 #define FirmwareVersionPatch        "d"    // for example major.minor patch: 10.03c
 
 #include "src/Common.h"
-NVS nv;
 
-#include "src/lib/encoder/quadrature/Quadrature.h"
-#include "src/lib/encoder/quadratureEsp32/QuadratureEsp32.h"
-#include "src/lib/encoder/cwCcw/CwCcw.h"
-#include "src/lib/encoder/pulseDir/PulseDir.h"
-#include "src/lib/encoder/bissc/As37h39bb.h"
-#include "src/lib/encoder/bissc/Jtw24.h"
-#include "src/lib/encoder/bissc/Jtw26.h"
+#include "src/lib/nv/Nv.h"
+#include "src/lib/encoder/Encoder.h"
 
 #if AXIS1_ENCODER == AB
   Quadrature encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
@@ -83,7 +77,7 @@ void setup() {
   // start low level hardware
   VLF("MSG: Setup, HAL initalize");
   HAL_INIT();
-  HAL_NV_INIT();
+  nv.init();
 
   nv.ignoreCache(true);
 
@@ -156,8 +150,7 @@ void loop() {
         int32_t count = encAxis1.read();
         if (AXIS1_ENCODER_REVERSE == ON) count = -count;
         SERIAL_ONSTEP.print(count);
-        if (encAxis1.error) { SERIAL_ONSTEP.println("E"); encAxis1.error = false; } else
-        if (encAxis1.warn) { SERIAL_ONSTEP.println("W"); encAxis1.warn = false; } else SERIAL_ONSTEP.println();
+        if (encAxis1.errorThresholdExceeded()) SERIAL_ONSTEP.println("E"); else SERIAL_ONSTEP.println();
       }
     #endif
 
@@ -166,8 +159,7 @@ void loop() {
         int32_t count = encAxis2.read();
         if (AXIS2_ENCODER_REVERSE == ON) count = -count;
         SERIAL_ONSTEP.print(count);
-        if (encAxis2.error) { SERIAL_ONSTEP.println("E"); encAxis1.error = false; } else
-        if (encAxis2.warn) { SERIAL_ONSTEP.println("W"); encAxis1.warn = false; } else SERIAL_ONSTEP.println();
+        if (encAxis2.errorThresholdExceeded()) SERIAL_ONSTEP.println("E"); else SERIAL_ONSTEP.println();
       } else
     #endif
 

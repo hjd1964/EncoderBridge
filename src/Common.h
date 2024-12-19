@@ -10,5 +10,3 @@
 #include "lib/Macros.h"
 #include "pinmaps/Models.h"
 #include "lib/debug/Debug.h"
-#include "lib/nv/NV.h"
-extern NVS nv;
