@@ -12,45 +12,45 @@
 #include "src/lib/encoder/Encoder.h"
 
 #if AXIS1_ENCODER == AB
-  Quadrature encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+  Quadrature encAxis1(1, AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN);
 #elif AXIS1_ENCODER == AB_ESP32
-  QuadratureEsp32 encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+  QuadratureEsp32 encAxis1(1, AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN);
 #elif AXIS1_ENCODER == CW_CCW
-  CwCcw encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+  CwCcw encAxis1(1, AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN);
 #elif AXIS1_ENCODER == PULSE_DIR
-  PulseDir encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+  PulseDir encAxis1(1, AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN);
 #elif AXIS1_ENCODER == AS37_H39B_B
-  As37h39bb encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+  As37h39bb encAxis1(1, AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN);
 #elif AXIS1_ENCODER == JTW_24BIT
-  Jtw24 encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+  Jtw24 encAxis1(1, AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN);
 #elif AXIS1_ENCODER == JTW_26BIT
-  Jtw26 encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+  Jtw26 encAxis1(1, AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN);
 #elif AXIS1_ENCODER == LIKA_ASC85
-  LikaAsc85 encAxis1(AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN, 1);
+  LikaAsc85 encAxis1(1, AXIS1_ENCODER_A_PIN, AXIS1_ENCODER_B_PIN);
 #endif
 
 #if AXIS2_ENCODER == AB
-  Quadrature encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+  Quadrature encAxis2(2, AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN);
 #elif AXIS2_ENCODER == AB_ESP32
-  QuadratureEsp32 encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+  QuadratureEsp32 encAxis2(2, AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN);
 #elif AXIS2_ENCODER == CW_CCW
-  CwCcw encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+  CwCcw encAxis2(2, AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN);
 #elif AXIS2_ENCODER == PULSE_DIR
-  PulseDir encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+  PulseDir encAxis2(2, AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN);
 #elif AXIS2_ENCODER == AS37_H39B_B
-  As37h39bb encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+  As37h39bb encAxis2(2, AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN);
 #elif AXIS2_ENCODER == JTW_24BIT
-  Jtw24 encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+  Jtw24 encAxis2(2, AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN);
 #elif AXIS2_ENCODER == JTW_26BIT
-  Jtw26 encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+  Jtw26 encAxis2(2, AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN);
 #elif AXIS2_ENCODER == LIKA_ASC85
-  LikaAsc85 encAxis2(AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN, 2);
+  LikaAsc85 encAxis2(2, AXIS2_ENCODER_A_PIN, AXIS2_ENCODER_B_PIN);
 #endif
 
 #define EncoderSettingsSize 72
 typedef struct EncoderAxis {
   uint32_t zero;
-  uint32_t offset;
+  uint32_t index;
   int32_t diffTo;
   double ticksPerDeg;
   int16_t reverse;
@@ -170,7 +170,7 @@ void loop() {
     if (c3 == ':' && c2 == 'S' && c1 == 'O' && c == '#') {
       #if AXIS1_ENCODER != OFF
         encAxis1.origin = 0;
-        encAxis1.offset = 0;
+        encAxis1.index = 0;
         settings.axis1.zero = (uint32_t)(-encAxis1.read());
         encAxis1.origin = settings.axis1.zero;
         VF("MSG: Absolute Encoder Axis1"); VF(", saving AXIS1_ENCODER_OFFSET "); V(uint32_t(settings.axis1.zero)); VLF(" to NV/EEPROM");
@@ -178,7 +178,7 @@ void loop() {
 
       #if AXIS2_ENCODER != OFF
         encAxis2.origin = 0;
-        encAxis2.offset = 0;
+        encAxis2.index = 0;
         settings.axis2.zero = (uint32_t)(-encAxis2.read());
         encAxis2.origin = settings.axis2.zero;
         VF("MSG: Absolute Encoder Axis2"); VF(", saving AXIS2_ENCODER_OFFSET "); V(uint32_t(settings.axis2.zero)); VLF(" to NV/EEPROM");
