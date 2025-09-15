@@ -3,7 +3,7 @@
 #include "AutoBin.h"
 
 float pulse_frac_average[CORRECT_WINDOW];
-uint32_t lastCount;
+int32_t lastCount;
 unsigned long lastTime;
 
 int32_t AutoBin::apply(int32_t count) {
@@ -14,7 +14,7 @@ int32_t AutoBin::apply(int32_t count) {
 
 // get the average in the first eight minutes of operation during which time the mount should be tracking normally
 bool AutoBin::calibrate(int32_t count) {
-  if (lastCount != count && millis() < 4800000) {
+  if (lastCount != count && (long)(millis() - 4800000) < 0) {
     unsigned long thisTime = millis();
 
     long pulse_time = (long)(thisTime - lastTime);                               // should be 431
