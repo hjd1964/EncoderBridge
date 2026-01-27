@@ -5,7 +5,6 @@
 
 #ifdef KTECH_MOTOR_PRESENT
 
-#include <climits>
 #include "../../../tasks/OnTask.h"
 #include "../../../canPlus/CanPlus.h"
 
@@ -41,7 +40,7 @@ KTechMotor::KTechMotor(uint8_t axisNumber, int8_t reverse, const KTechDriverSett
   axisPrefix[5] = '0' + axisNumber;
 
   // the motor CAN ID is the axis number!
-  canID = 0x140 + 1;
+  canID = 0x140 + axisNumber;
 
   statusMode = Settings->status;
 
